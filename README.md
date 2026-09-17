@@ -8,9 +8,10 @@ MATLAB/Simulink 기반으로 계통연계형 태양광 발전 시스템을 단�
 - 구현됨, 실행 검증 전: STEP 1 — MATLAB/Simulink 기초 동적 시스템
 - 구현됨, 실행 검증 전: STEP 2 — PV module/array 특성 및 sizing
 - 구현됨, 실행 검증 전: STEP 3 — P&O MPPT tracking
-- 예정: STEP 4~6 — Boost converter부터 통합 계통연계 시스템까지 단계별 구현
+- 구현됨, 실행 검증 전: STEP 4 — averaged Boost Converter 및 DC-link
+- 예정: STEP 5~6 — Grid-side inverter 및 통합 시스템
 
-STEP 1부터 STEP 3까지 코드는 작성되었지만 MATLAB/Simulink에서 아직 runtime validation을 수행하지 않았습니다. 현재 저장소에는 PV 특성 및 MPPT 계산 코드만 있으며 전력변환 모델은 포함되어 있지 않습니다. 각 단계의 모델과 결과는 실행·검증 후에만 완료로 표시합니다.
+STEP 1부터 STEP 4까지 코드는 작성되었지만 MATLAB/Simulink에서 아직 runtime validation을 수행하지 않았습니다. 현재 전력변환 구현은 averaged Boost model까지이며 switching model과 AC 계통연계 stage는 포함되어 있지 않습니다. 각 단계의 모델과 결과는 실행·검증 후에만 완료로 표시합니다.
 
 ## Requirements
 
@@ -86,6 +87,25 @@ run("models/step03_mppt/run_step03.m")
 ```
 
 그림 네 개와 `step03_tracking_summary.csv`가 `results/step03/`에 생성됩니다.
+
+## STEP 4 — Averaged Boost Converter and DC-link
+
+STEP 4 validates converter-level dynamics using an averaged Boost Converter model before introducing detailed switching behavior. 상태는 PV input-capacitor voltage, inductor current, DC-link capacitor voltage이며, P&O의 `Vpv_ref`를 PI voltage controller가 duty command로 변환합니다.
+
+Boost에서는 duty 증가가 inductor current를 높여 PV-side voltage를 낮추는 방향으로 작용하므로 PI error는 `Vpv - Vpv_ref`를 사용합니다. Duty는 0.05–0.90으로 제한하고 conditional integration anti-windup을 적용합니다. 출력의 고정 등가 저항은 Grid-Side Inverter가 추가되기 전까지 사용하는 temporary DC load이며 실제 inverter load를 나타내지 않습니다.
+
+- averaged model: `diL/dt = (Vpv-(1-D)Vdc)/L`
+- DC-link: `dVdc/dt = ((1-D)iL-Iload)/Cdc`
+- 입력단: `dVpv/dt = (Ipv-iL)/Cpv`
+- 일사량: STEP 3과 동일한 600 → 1000 → 800 → 400 W/m²
+- 상태: Implemented / Not yet runtime-validated
+
+```matlab
+run("scripts/setup_project.m")
+run("models/step04_boost_converter/run_step04.m")
+```
+
+결과 그림 네 개와 `step04_summary.csv`가 `results/step04/`에 생성됩니다. STEP 5에서는 temporary load 대신 Grid-Side Inverter stage를 연결할 예정입니다.
 
 ## Repository structure
 

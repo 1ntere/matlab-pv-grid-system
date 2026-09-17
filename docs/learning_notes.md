@@ -69,3 +69,21 @@ MATLAB script에서 파라미터를 정의하고 단순한 Simulink 모델을 �
 - 일사량 급변으로 발생한 `ΔP`를 controller perturb의 결과로 오인하면 일시적으로 잘못된 방향을 선택할 수 있다.
 
 이번 단계의 plant는 `Vpv(k+1) = Vpv(k) + alpha*(Vref-Vpv(k))`인 voltage follower이다. 이는 MPPT 논리 검증용 abstraction이며 Boost Converter의 inductor, capacitor, switching 및 duty-ratio dynamics를 표현하지 않는다. STEP 4에서는 Vref를 실제 converter와 voltage-control 구조에 연결해야 한다.
+
+## STEP 4 — Averaged Boost Converter / DC-Link
+
+### 상태
+
+- Implemented
+- Not yet runtime-validated in MATLAB
+
+### 핵심 개념
+
+- 이상적인 Boost 관계는 `Vout = Vin/(1-D)`이며 duty가 증가하면 승압비가 커진다.
+- Inductor는 입력 에너지를 저장하고 전달하며, 입력 capacitor는 PV voltage dynamics를 형성한다.
+- DC-link capacitor는 입력·출력 전력의 순간 차이를 흡수하여 DC voltage를 완충한다.
+- P&O의 `Vpv_ref`와 실제 `Vpv` 차이를 PI controller가 duty로 변환한다. Boost duty 증가가 Vpv를 낮추므로 error 부호는 `Vpv-Vpv_ref`이다.
+- Duty saturation은 비물리적 명령을 막고, conditional integration은 saturation을 더 악화시키는 방향의 integrator 누적을 차단한다.
+- Averaged model은 switching period 평균 동특성을 다루므로 semiconductor switching ripple이나 PWM 파형을 표현하지 않는다.
+
+출력에는 향후 inverter를 대신하는 고정 등가 저항을 사용한다. 이는 임시 안정 부하이며 Grid-Side Inverter와 동일하지 않다.

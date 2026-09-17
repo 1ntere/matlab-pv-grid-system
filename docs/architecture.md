@@ -6,12 +6,12 @@
 
 현재 구현 범위는 다음과 같다.
 
-`PV Module / PV Array → P&O MPPT (Vref abstraction)`
+`PV Array → P&O MPPT → PV Voltage PI → Averaged Boost Converter → DC-Link`
 
-MPPT 출력은 현재 simplified voltage-following plant의 기준전압이다. Boost Converter의 duty ratio나 switching dynamics는 포함하지 않으며 STEP 4에서 physical converter control에 연결할 예정이다.
+MPPT 출력 `Vpv_ref`는 이제 PI controller를 거쳐 bounded duty command로 변환된다. Boost stage는 averaged state equations와 temporary DC resistive load를 사용하며 detailed semiconductor switching은 포함하지 않는다.
 
 향후 통합 순서는 다음과 같다.
 
-`PV Array → MPPT → Boost Converter → DC-Link → Grid-Side Inverter → Grid`
+`DC-Link → Grid-Side Inverter → Filter → Transformer → Grid`
 
 제어 구조와 정격 파라미터는 각 STEP에서 검증한 뒤 이 문서에 추가한다.
