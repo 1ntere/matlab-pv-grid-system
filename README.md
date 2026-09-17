@@ -6,9 +6,10 @@ MATLAB/Simulink 기반으로 계통연계형 태양광 발전 시스템을 단�
 
 - 완료: STEP 0 — 저장소 구조, 환경 점검 스크립트, 프로젝트 초기화 스크립트
 - 구현됨, 실행 검증 전: STEP 1 — MATLAB/Simulink 기초 동적 시스템
-- 예정: STEP 2~6 — PV array부터 통합 계통연계 시스템까지 단계별 구현
+- 구현됨, 실행 검증 전: STEP 2 — PV module/array 특성 및 sizing
+- 예정: STEP 3~6 — MPPT부터 통합 계통연계 시스템까지 단계별 구현
 
-STEP 1 코드는 작성되었지만 MATLAB/Simulink에서 아직 runtime validation을 수행하지 않았습니다. 현재 저장소에는 PV 또는 전력변환 모델이 포함되어 있지 않습니다. 각 단계의 모델과 결과는 실행·검증 후에만 완료로 표시합니다.
+STEP 1과 STEP 2 코드는 작성되었지만 MATLAB/Simulink에서 아직 runtime validation을 수행하지 않았습니다. 현재 저장소에는 PV 특성 계산 코드만 있으며 전력변환 모델은 포함되어 있지 않습니다. 각 단계의 모델과 결과는 실행·검증 후에만 완료로 표시합니다.
 
 ## Requirements
 
@@ -47,6 +48,24 @@ run("models/step01_basics/run_step01.m")
 ```
 
 두 번째 명령은 파라미터 로드, `step01_basic_system.slx` 생성, simulation, `simOut` 결과 수집, plot 및 `results/step01/step01_rlc_step_response.png` 저장을 순서대로 수행합니다. 정상 동작 시 단위 계단 입력 이후 커패시터 전압이 감쇠 진동하며 약 1 V에 수렴해야 합니다. 실제 결과는 MATLAB/Simulink에서 확인해야 합니다.
+
+## STEP 2 — PV module and array characteristics
+
+STEP 2는 simplified single-diode 식으로 module I-V/P-V 특성을 계산하고 약 1 MW, 1000 V급 array의 직렬·병렬 개수를 산정합니다. 입력값은 특정 강의자료나 제조사 제품을 복제한 값이 아닌 교체 가능한 example engineering parameters입니다.
+
+- 일사량 비교: 400, 600, 800, 1000 W/m² (25 °C)
+- 온도 비교: 25, 45 °C (1000 W/m²)
+- 배열 구성: `Ns = ceil(target voltage / module Vmp)`, 이후 `Np = ceil(target power / string power)`
+- 상태: Implemented / Not yet runtime-validated
+
+저장소 루트에서 실행합니다.
+
+```matlab
+run("scripts/setup_project.m")
+run("models/step02_pv_array/run_step02.m")
+```
+
+실행 시 I-V, P-V 및 온도 비교 그림을 `results/step02/`에 저장하고 module, array sizing, 조건별 MPP 요약을 Command Window에 출력합니다.
 
 ## Repository structure
 

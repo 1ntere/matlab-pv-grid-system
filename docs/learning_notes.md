@@ -33,3 +33,23 @@ MATLAB script에서 파라미터를 정의하고 단순한 Simulink 모델을 �
 ### 예상 결과와 미검증 항목
 
 감쇠비가 1보다 작아 출력은 overshoot와 감쇠 진동을 보인 뒤 약 1 V로 수렴할 것으로 예상한다. 모델 생성·update, simulation, Scope 파형, `simOut` timeseries와 PNG 생성은 MATLAB GUI에서 실제 확인해야 한다.
+
+## STEP 2 — PV Module / Array Characteristics
+
+### 상태
+
+- Implemented
+- Not yet runtime-validated in MATLAB
+
+### 핵심 개념
+
+- I-V curve는 단자 전압 변화에 따라 PV 전류가 어떻게 감소하는지 보여주며 knee 이후 전류가 급격히 감소한다.
+- P-V curve는 `P = V*I`이며 최고점이 maximum power point(MPP)이다.
+- 일사량 증가는 주로 광전류와 단락전류를 증가시켜 가용 전력을 높인다.
+- 온도 상승은 단락전류를 소폭 높일 수 있지만 개방전압을 낮춰 최대 전력을 감소시키는 경향이 있다.
+- 직렬 연결 수 `Ns`는 array 전압을, 병렬 string 수 `Np`는 array 전류와 전력을 주로 결정한다.
+- sizing은 목표 MPP 전압을 만족하도록 `Ns`를 올림한 뒤 목표 전력을 만족하도록 `Np`를 올림한다.
+
+### 모델 범위
+
+교육용 simplified single-diode 식에 series/shunt resistance를 포함하고 bounded bisection으로 implicit current를 계산한다. 예제 파라미터는 실제 module 선정 시 datasheet 기반 값으로 교체해야 하며, 이번 단계에서는 nonlinear parameter fitting을 수행하지 않는다.
