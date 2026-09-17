@@ -1,0 +1,42 @@
+# MATLAB generated files
+*.asv
+*.autosave
+*.m~
+*.slxc
+*.mex*
+*.mlappinstall
+*.prj
+slprj/
+codegen/
+cache/
+
+# Simulation and generated results
+*.mat
+*.mldatx
+*.sdi
+results/*
+!results/.gitkeep
+
+# Local/editor files
+.DS_Store
+Thumbs.db
+desktop.ini
+.vscode/
+.idea/
+
+# Private or instructor-provided source material
+references/*
+!references/README.md
+*.pdf
+*.ppt
+*.pptx
+*.doc
+*.docx
+*.zip
+*.eml
+
+# Logs and temporary files
+*.log
+*.tmp
+*.bak
+~$*
