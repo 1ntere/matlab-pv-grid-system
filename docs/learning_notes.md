@@ -53,3 +53,19 @@ MATLAB script에서 파라미터를 정의하고 단순한 Simulink 모델을 �
 ### 모델 범위
 
 교육용 simplified single-diode 식에 series/shunt resistance를 포함하고 bounded bisection으로 implicit current를 계산한다. 예제 파라미터는 실제 module 선정 시 datasheet 기반 값으로 교체해야 하며, 이번 단계에서는 nonlinear parameter fitting을 수행하지 않는다.
+
+## STEP 3 — P&O MPPT Tracking
+
+### 상태
+
+- Implemented
+- Not yet runtime-validated in MATLAB
+
+### 핵심 개념
+
+- P&O는 `ΔP`와 `ΔV`의 부호가 같으면 voltage perturb 방향을 유지하고, 다르면 반전한다.
+- 고정 perturb 방식은 MPP에 도달한 뒤에도 주변 두 동작점 사이를 움직이므로 정상상태 oscillation이 남는다.
+- perturb step을 키우면 수렴은 빨라지지만 정상상태 오차와 ripple이 커지고, 줄이면 반대 trade-off가 생긴다.
+- 일사량 급변으로 발생한 `ΔP`를 controller perturb의 결과로 오인하면 일시적으로 잘못된 방향을 선택할 수 있다.
+
+이번 단계의 plant는 `Vpv(k+1) = Vpv(k) + alpha*(Vref-Vpv(k))`인 voltage follower이다. 이는 MPPT 논리 검증용 abstraction이며 Boost Converter의 inductor, capacitor, switching 및 duty-ratio dynamics를 표현하지 않는다. STEP 4에서는 Vref를 실제 converter와 voltage-control 구조에 연결해야 한다.

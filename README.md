@@ -7,9 +7,10 @@ MATLAB/Simulink 기반으로 계통연계형 태양광 발전 시스템을 단�
 - 완료: STEP 0 — 저장소 구조, 환경 점검 스크립트, 프로젝트 초기화 스크립트
 - 구현됨, 실행 검증 전: STEP 1 — MATLAB/Simulink 기초 동적 시스템
 - 구현됨, 실행 검증 전: STEP 2 — PV module/array 특성 및 sizing
-- 예정: STEP 3~6 — MPPT부터 통합 계통연계 시스템까지 단계별 구현
+- 구현됨, 실행 검증 전: STEP 3 — P&O MPPT tracking
+- 예정: STEP 4~6 — Boost converter부터 통합 계통연계 시스템까지 단계별 구현
 
-STEP 1과 STEP 2 코드는 작성되었지만 MATLAB/Simulink에서 아직 runtime validation을 수행하지 않았습니다. 현재 저장소에는 PV 특성 계산 코드만 있으며 전력변환 모델은 포함되어 있지 않습니다. 각 단계의 모델과 결과는 실행·검증 후에만 완료로 표시합니다.
+STEP 1부터 STEP 3까지 코드는 작성되었지만 MATLAB/Simulink에서 아직 runtime validation을 수행하지 않았습니다. 현재 저장소에는 PV 특성 및 MPPT 계산 코드만 있으며 전력변환 모델은 포함되어 있지 않습니다. 각 단계의 모델과 결과는 실행·검증 후에만 완료로 표시합니다.
 
 ## Requirements
 
@@ -66,6 +67,25 @@ run("models/step02_pv_array/run_step02.m")
 ```
 
 실행 시 I-V, P-V 및 온도 비교 그림을 `results/step02/`에 저장하고 module, array sizing, 조건별 MPP 요약을 Command Window에 출력합니다.
+
+## STEP 3 — P&O MPPT tracking
+
+P&O는 직전 측정과 비교한 `ΔP` 및 `ΔV`의 부호로 PV voltage reference(`Vref`)의 perturb 방향을 결정합니다. 이 단계는 Boost Converter 없이 1차 voltage-following plant abstraction을 사용하여 MPPT 논리만 분리해 검증합니다. 실제 converter dynamics나 duty-ratio 제어를 나타내지 않으며 STEP 4에서 physical Boost Converter 제어와 연결할 예정입니다.
+
+- 일사량: 0–1 s 600, 1–2 s 1000, 2–3 s 800, 3–4 s 400 W/m²
+- 추적 신호: Vpv, Ipv, Ppv, Vref
+- 기준값: STEP 2 I-V curve에서 계산한 theoretical Vmpp/Pmpp
+- 평가: 각 일사량 구간 마지막 20%의 평균 voltage/power error와 tracking efficiency
+- 상태: Implemented / Not yet runtime-validated
+
+저장소 루트에서 실행합니다.
+
+```matlab
+run("scripts/setup_project.m")
+run("models/step03_mppt/run_step03.m")
+```
+
+그림 네 개와 `step03_tracking_summary.csv`가 `results/step03/`에 생성됩니다.
 
 ## Repository structure
 
