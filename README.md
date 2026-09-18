@@ -9,9 +9,10 @@ MATLAB/Simulink 기반으로 계통연계형 태양광 발전 시스템을 단�
 - 구현됨, 실행 검증 전: STEP 2 — PV module/array 특성 및 sizing
 - 구현됨, 실행 검증 전: STEP 3 — P&O MPPT tracking
 - 구현됨, 실행 검증 전: STEP 4 — averaged Boost Converter 및 DC-link
-- 예정: STEP 5~6 — Grid-side inverter 및 통합 시스템
+- 구현됨, 실행 검증 전: STEP 5 — averaged Grid-Side Inverter 및 dq control
+- 예정: STEP 6 — 통합 계통연계 PV 시스템
 
-STEP 1부터 STEP 4까지 코드는 작성되었지만 MATLAB/Simulink에서 아직 runtime validation을 수행하지 않았습니다. 현재 전력변환 구현은 averaged Boost model까지이며 switching model과 AC 계통연계 stage는 포함되어 있지 않습니다. 각 단계의 모델과 결과는 실행·검증 후에만 완료로 표시합니다.
+STEP 1부터 STEP 5까지 코드는 작성되었지만 MATLAB/Simulink에서 아직 runtime validation을 수행하지 않았습니다. 현재 전력변환 구현은 서로 독립적인 averaged Boost 및 Grid-Side Inverter model까지이며 switching model과 전체 통합은 포함되어 있지 않습니다. 각 단계의 모델과 결과는 실행·검증 후에만 완료로 표시합니다.
 
 ## Requirements
 
@@ -106,6 +107,27 @@ run("models/step04_boost_converter/run_step04.m")
 ```
 
 결과 그림 네 개와 `step04_summary.csv`가 `results/step04/`에 생성됩니다. STEP 5에서는 temporary load 대신 Grid-Side Inverter stage를 연결할 예정입니다.
+
+## STEP 5 — Averaged Grid-Side Inverter and dq control
+
+STEP 5 uses an averaged three-phase inverter model to validate grid-side control architecture before introducing switching-level PWM. 독립적인 DC input-power source와 DC-link capacitor를 사용해 inverter controller만 분리해 검토하며 STEP 4 Boost dynamics는 STEP 6에서 통합합니다.
+
+- grid: 380 V line-line RMS, 60 Hz, balanced three phase
+- angle: ideal grid angle source (`theta = 2*pi*f*t`); PLL not yet implemented
+- outer loop: `Vdc - Vdc_ref` PI → positive `Id_ref`
+- inner loop: dq current PI with grid-voltage feedforward and cross-coupling compensation
+- reactive-current target: `Iq_ref = 0 A`
+- AC interface: averaged VSI and L filter
+- voltage limit: `0.95*Vdc/sqrt(3)` dq-vector magnitude
+- switching PWM not yet implemented
+- 상태: Implemented / Not yet runtime-validated
+
+```matlab
+run("scripts/setup_project.m")
+run("models/step05_grid_inverter/run_step05.m")
+```
+
+결과 그림 다섯 개와 `step05_summary.csv`가 `results/step05/`에 생성됩니다.
 
 ## Repository structure
 

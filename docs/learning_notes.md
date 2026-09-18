@@ -87,3 +87,23 @@ MATLAB script에서 파라미터를 정의하고 단순한 Simulink 모델을 �
 - Averaged model은 switching period 평균 동특성을 다루므로 semiconductor switching ripple이나 PWM 파형을 표현하지 않는다.
 
 출력에는 향후 inverter를 대신하는 고정 등가 저항을 사용한다. 이는 임시 안정 부하이며 Grid-Side Inverter와 동일하지 않다.
+
+## STEP 5 — Averaged Grid-Side Inverter / dq Control
+
+### 상태
+
+- Implemented
+- Not yet runtime-validated in MATLAB
+
+### 핵심 개념
+
+- abc/dq transformation은 60 Hz 3상 정현파를 grid angle과 함께 회전하는 좌표계의 DC-like d/q 값으로 바꾼다.
+- amplitude-invariant, negative-q Park convention을 사용하며 grid voltage를 d축에 정렬한다.
+- positive d-axis current는 grid로 전달하는 active power를, q-axis current는 reactive power를 주로 결정한다.
+- Vdc가 기준보다 높으면 outer PI가 Id reference를 높여 grid active-power export를 증가시킨다.
+- inner current PI는 grid-voltage feedforward와 `omega*L` cross-coupling 보상으로 d/q current를 제어한다.
+- L filter는 inverter-grid 전압 차이를 current dynamics로 변환한다.
+- DC voltage가 허용하는 dq voltage-vector magnitude를 넘으면 command를 축소하고 integrator 누적을 제한한다.
+- averaged inverter는 fundamental voltage command만 표현하며 PWM carrier, dead time, switching ripple을 포함하지 않는다.
+
+현재 grid angle은 ideal source이며 PLL은 구현하지 않았다. 따라서 grid synchronization이 검증됐다고 볼 수 없다.
