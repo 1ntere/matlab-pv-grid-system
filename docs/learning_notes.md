@@ -107,3 +107,19 @@ MATLAB script에서 파라미터를 정의하고 단순한 Simulink 모델을 �
 - averaged inverter는 fundamental voltage command만 표현하며 PWM carrier, dead time, switching ripple을 포함하지 않는다.
 
 현재 grid angle은 ideal source이며 PLL은 구현하지 않았다. 따라서 grid synchronization이 검증됐다고 볼 수 없다.
+
+## STEP 6 — Integrated PV-Grid System
+
+### 상태
+
+- Implemented
+- Not yet runtime-validated in MATLAB
+
+### 통합 관점
+
+- DC-link는 Boost output과 inverter input이 동일 capacitor energy를 공유하는 subsystem coupling point다.
+- PV-side controller는 `Vpv → Vpv_ref`를 duty로 조절해 MPPT operating point를 담당한다.
+- Grid-side outer controller는 `Vdc → Vdc_ref`를 Id reference로 조절해 energy export를 담당한다.
+- 정상상태에는 PV, Boost, inverter, grid power가 가까워져야 하지만 transient에는 Cpv, Lboost, Cdc, Lfilter의 stored energy 때문에 순간 power가 다를 수 있다.
+- 여러 loop가 중첩된 cascaded architecture이므로 독립 STEP에서 사용한 gain이 통합 상태에서도 안정적이라는 보장은 없다.
+- 현재 averaged model은 switching, semiconductor, magnetic 및 transformer loss를 포함하지 않으므로 PV-to-grid power ratio를 physical efficiency로 해석하면 안 된다.

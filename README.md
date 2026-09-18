@@ -1,4 +1,4 @@
-# MATLAB Grid-Connected PV System
+# Approximately 1 MW Grid-Connected PV System Modeling and Control
 
 MATLAB/Simulink 기반으로 계통연계형 태양광 발전 시스템을 단계적으로 설계하고 검증하는 학습 프로젝트입니다. 최종 목표는 약 1 MW급 PV array, MPPT, boost converter, DC-link, 3상 인버터, 필터, 변압기 및 계통/부하를 통합하고 일사량 변화에 대한 과도응답을 분석하는 것입니다.
 
@@ -10,9 +10,13 @@ MATLAB/Simulink 기반으로 계통연계형 태양광 발전 시스템을 단�
 - 구현됨, 실행 검증 전: STEP 3 — P&O MPPT tracking
 - 구현됨, 실행 검증 전: STEP 4 — averaged Boost Converter 및 DC-link
 - 구현됨, 실행 검증 전: STEP 5 — averaged Grid-Side Inverter 및 dq control
-- 예정: STEP 6 — 통합 계통연계 PV 시스템
+- 구현됨, 실행 검증 전: STEP 6 — 약 1 MW 통합 계통연계 PV 시스템
 
-STEP 1부터 STEP 5까지 코드는 작성되었지만 MATLAB/Simulink에서 아직 runtime validation을 수행하지 않았습니다. 현재 전력변환 구현은 서로 독립적인 averaged Boost 및 Grid-Side Inverter model까지이며 switching model과 전체 통합은 포함되어 있지 않습니다. 각 단계의 모델과 결과는 실행·검증 후에만 완료로 표시합니다.
+STEP 1부터 STEP 6까지 구현 코드는 작성됐으며 현재 상태는 **Implemented / Runtime validation pending**입니다. Placeholder module 1850개로 약 1.006 MW array를 구성하고 다음 averaged architecture를 연결합니다.
+
+`PV Array → P&O MPPT → Boost Converter → DC-Link → Grid-Side Inverter → L Filter → Grid`
+
+제어기는 PV Voltage PI, P&O MPPT, DC-Link Voltage PI, dq Current PI로 구성됩니다. MATLAB runtime 검증 전이므로 validated, stable 또는 fully verified 상태로 표현하지 않습니다.
 
 ## Requirements
 
@@ -128,6 +132,23 @@ run("models/step05_grid_inverter/run_step05.m")
 ```
 
 결과 그림 다섯 개와 `step05_summary.csv`가 `results/step05/`에 생성됩니다.
+
+## STEP 6 — Integrated approximately 1 MW PV-grid system
+
+STEP 6는 기존 STEP 2–5 함수를 복사하지 않고 연결합니다. Boost output current와 inverter DC power가 하나의 DC-link capacitor를 공유하며, `Cdc*dVdc/dt = (1-D)iL - Pinverter/Vdc`가 subsystem coupling을 결정합니다. STEP 4의 temporary load와 STEP 5의 independent DC source는 통합 simulation에 사용하지 않습니다.
+
+- array: Ns=25, Np=74, 1850 placeholder modules, nominal 1.006 MW
+- irradiance: 600 → 1000 → 800 → 400 W/m², temperature 25 °C
+- grid: balanced 380 V line-line RMS, 60 Hz, ideal angle
+- models: averaged Boost, VSI, and L filter
+- status: Implemented / Not yet runtime-validated
+
+```matlab
+run("scripts/setup_project.m")
+run("models/step06_integrated_system/run_step06.m")
+```
+
+통합 plot 여덟 개와 `step06_system_summary.csv`가 `results/step06/`에 생성됩니다. `.slx`, switching PWM, PLL, transformer 및 loss model은 후속 improvement 범위입니다.
 
 ## Repository structure
 
